@@ -122,3 +122,55 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Change default text color for all menu items */
+.p-menubar .p-menuitem-text {
+    color: #131c70 !important; 
+}
+
+/* Change text color on hover */
+/* .p-menubar .p-submenu-list:hover {
+    background-color: #0000FF !important; 
+} */
+
+.p-menubar .p-submenu-list {
+  background-color: #131c70;
+}
+
+/* Change the background color of individual dropdown items on hover */
+/* .p-menubar .p-menuitem-link:hover {
+  background-color: #e0e0e0;
+  color: #333; 
+} */
+
+/* Targets the text within all submenu items */
+.p-menubar .p-submenu-list .p-menuitem-text {
+    color: white !important; 
+    font-weight: 400;
+}
+
+/* Targets the entire link area for submenu items to ensure the color applies everywhere */
+/* .p-menubar .p-submenu-list .p-menuitem-link {
+    border-bottom: 0.1px solid #fff;
+} */
+
+/* .p-menubar .p-menuitem-link:hover {
+    background-color: initial !important;
+} */
+
+
+
+.p-menubar .p-submenu-list {
+  animation: dropdownFade 0.25s ease-out;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

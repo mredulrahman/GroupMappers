@@ -1,5 +1,5 @@
 // import React from 'react'
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 // import { GestureHandling } from "leaflet-gesture-handling";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectFade, Autoplay, Navigation, Pagination, Grid } from "swiper/modules";
@@ -16,16 +16,30 @@ import MuiAccordionSummary, {
 } from '@mui/material/AccordionSummary';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
-import { motion } from "framer-motion";
 import { Button } from '@mui/material';
 import Footer from "../Footer";
 import Header from "../Header";
 import { faTag } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { motion, useMotionValue, animate } from 'motion/react';
 
+  function ScrollToHash() {
+    const { hash } = useLocation();
+    useEffect(() => {
+      if (hash) {
+        const el = document.querySelector(hash);
+        if (el) {
+          setTimeout(() => {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }, 50); // wait for DOM
+        }
+      }
+    }, [hash]);
+    return null;
+  }
 
-    function MainSlider() {
+    function Slider1() {
       return (
         <Swiper
           modules={[EffectFade, Autoplay, Navigation]}
@@ -109,18 +123,166 @@ import { Link } from "react-router-dom";
       );
     }
 
-  const images = [
-    "/src/assets/images/331983336_1200178177277688_3773989570788146855_n.webp",
-    "/src/assets/images/329856116_2015029008690502_4708346483387385590_n-1.webp",
-    "/src/assets/images/9D43283D-11A2-4796-8803-1EB9C7B12E83.jpg",
-    "/src/assets/images/323640300_873953090592227_1708312130902432154_n.webp",
-    "/src/assets/images/332125939_946766212981655_4392939912334334589_n.webp",
-    "/src/assets/images/IMG_5440-scaled.jpg",
-    "/src/assets/images/volunteer-scaled.webp"
+  // const images = [
+  //   "/src/assets/images/331983336_1200178177277688_3773989570788146855_n.webp",
+  //   "/src/assets/images/329856116_2015029008690502_4708346483387385590_n-1.webp",
+  //   "/src/assets/images/9D43283D-11A2-4796-8803-1EB9C7B12E83.jpg",
+  //   "/src/assets/images/323640300_873953090592227_1708312130902432154_n.webp",
+  //   "/src/assets/images/332125939_946766212981655_4392939912334334589_n.webp",
+  //   "/src/assets/images/IMG_5440-scaled.jpg",
+  //   "/src/assets/images/volunteer-scaled.webp"
+  // ];
+
+  const items = [
+    {
+      id: 1,
+      url: '/src/assets/images/331983336_1200178177277688_3773989570788146855_n.webp',
+      title: 'Misty Mountain Majesty',
+    },
+    {
+      id: 2,
+      url: '/src/assets/images/329856116_2015029008690502_4708346483387385590_n-1.webp',
+      title: 'Winter Wonderland',
+    },
+    {
+      id: 3,
+      url: '/src/assets/images/9D43283D-11A2-4796-8803-1EB9C7B12E83.jpg',
+      title: 'Autumn Mountain Retreat',
+    },
+    {
+      id: 4,
+      url: '/src/assets/images/323640300_873953090592227_1708312130902432154_n.webp',
+      title: 'Tranquil Lake Reflection',
+    },
+    {
+      id: 5,
+      url: '/src/assets/images/332125939_946766212981655_4392939912334334589_n.webp',
+      title: 'Misty Mountain Peaks',
+    },
+    {
+      id: 6,
+      url: '/src/assets/images/IMG_5440-scaled.jpg',
+      title: 'Golden Hour Glow',
+    },
+    {
+      id: 7,
+      url: '/src/assets/images/volunteer-scaled.webp',
+      title: 'Snowy Mountain Highway',
+    }
   ];
 
+  function Slider2({ duration = 3000 }) {
+    const [index, setIndex] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+    const containerRef = useRef(null);
+    const x = useMotionValue(0);
+    useEffect(() => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth || 1;
+        const targetX = -index * containerWidth;
+        animate(x, targetX, {
+          type: 'spring',
+          stiffness: 300,
+          damping: 30,
+        });
+      }
+    }, [index]);
+    useEffect(() => {
+      if (!isHovered) {
+        const interval = setInterval(() => {
+          setIndex((current) => (current + 1) % items.length);
+        }, duration);
+        return () => clearInterval(interval);
+      }
+    }, [isHovered, duration]);
+    return (
+      <div className="w-full lg:p-10 sm:p-4 p-2">
+        <div className="flex flex-col gap-3">
+          <div
+            className="relative overflow-hidden"
+            ref={containerRef}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <motion.div className="flex" style={{ x }}>
+              {items.map((item) => (
+                <div key={item.id} className="shrink-0 w-full h-60">
+                  <img
+                    src={item.url}
+                    alt={item.title}
+                    className="w-full h-full object-cover select-none pointer-events-none"
+                    draggable={false}
+                  />
+                </div>
+              ))}
+            </motion.div>
+
+            <motion.button
+              disabled={index === 0}
+              onClick={() => setIndex((i) => Math.max(0, i - 1))}
+              className={`absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform z-10
+                ${
+                  index === 0
+                    ? 'opacity-40 cursor-not-allowed bg-gray-300'
+                    : 'bg-white hover:scale-110 hover:opacity-100 opacity-70'
+                }`}
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </motion.button>
+            <motion.button
+              disabled={index === items.length - 1}
+              onClick={() => setIndex((i) => Math.min(items.length - 1, i + 1))}
+              className={`absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform z-10
+                ${
+                  index === items.length - 1
+                    ? 'opacity-40 cursor-not-allowed bg-gray-300'
+                    : 'bg-white hover:scale-110 hover:opacity-100 opacity-70'
+                }`}
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </motion.button>
+
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+              {items.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setIndex(i)}
+                  className={`h-2 rounded-full transition-all ${i === index ? 'w-8 bg-white' : 'w-2 bg-white/50'}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const Accordion = styled((props) => (
-      <MuiAccordion elevation={0} square {...props} />
+      <MuiAccordion disableGutters elevation={0} square {...props} />
     ))(({ theme }) => ({
       border: `3px solid ${theme.palette.divider}`,
       '&:not(:last-child)': {
@@ -157,60 +319,65 @@ import { Link } from "react-router-dom";
       borderTop: '1px solid rgba(0, 0, 0, .125)',
     }));
 
-  function Slider() {
-    return (
-      <Swiper
-        modules={[Grid, Autoplay, Navigation, Pagination]}
-        // slidesPerView={2}                // 2 images visible at a time
-        grid={{ rows: 1 }}               // 1 row -> 2 columns
-        spaceBetween={0}                // gap between images
-        loop={true}
-        navigation={true}
-        pagination={{
-          clickable: true
-        }}
-        autoplay={{
-          delay: 3000,
-          disableOnInteraction: false,
-        }}
-        speed={900}
-        // breakpoints={{
-        //   768: {       // md: tablets and above
-        //     slidesPerView: 1,
-        //     grid: { rows: 1 },
-        //   },
-        //   1024: {      // lg: desktop
-        //     slidesPerView: 2,
-        //     grid: { rows: 1 },
-        //   },
-        // }}
-        className="h-[250px] w-[400px] m-6"
-      >
-        {images.map((src, idx) => (
-          <SwiperSlide key={idx} className="flex">
-            <img
-              src={src}
-              alt={`Slide ${idx + 1}`}
-              className="w-full h-full"
-            />
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    );
-  }
+  // function Slider() {
+  //   return (
+  //     <Swiper
+  //       modules={[Grid, Autoplay, Navigation, Pagination]}
+  //       // slidesPerView={2}                // 2 images visible at a time
+  //       grid={{ rows: 1 }}               // 1 row -> 2 columns
+  //       spaceBetween={0}                // gap between images
+  //       loop={true}
+  //       navigation={{
+  //         addIcons: true
+  //       }}
+  //       // pagination={{
+  //       //   clickable: true
+  //       // }}
+  //       autoplay={{
+  //         delay: 3000,
+  //         disableOnInteraction: false,
+  //       }}
+  //       speed={900}
+  //       // breakpoints={{
+  //       //   768: {       // md: tablets and above
+  //       //     slidesPerView: 1,
+  //       //     grid: { rows: 1 },
+  //       //   },
+  //       //   1024: {      // lg: desktop
+  //       //     slidesPerView: 2,
+  //       //     grid: { rows: 1 },
+  //       //   },
+  //       // }}
+  //       className="h-[250px] w-[400px] m-6"
+  //     >
+  //       {images.map((src, idx) => (
+  //         <SwiperSlide key={idx} className="flex">
+  //           <img
+  //             src={src}
+  //             alt={`Slide ${idx + 1}`}
+  //             className="w-full h-full"
+  //           />
+  //         </SwiperSlide>
+  //       ))}
+  //     </Swiper>
+  //   );
+  // }
 
 
   export default function Home() {
-    const [expanded, setExpanded] = React.useState('panel1');
+    const [expanded, setExpanded] = useState(true);
     const handleChange = (panel) => (event, newExpanded) => {
       setExpanded(newExpanded ? panel : false);
     };
     return (
       <>
+      <ScrollToHash />
         <Header />
-        <MainSlider />
+        <div id="who-we-are">
+          <Slider1 />
+        </div>
           <div className='bg-[#000B58] text-center py-1'>
-              <h3 className='font-[600] text-white text-2xl'>Who we are</h3>
+            <h3 className='font-bold text-white text-2xl'>Who we are</h3>
           </div>
         <section>
           <div className='grid md:grid-cols-2 gap-7 bg-linear-to-r from-cyan-200 to-oklch(98.4% 0.019 200.873) text-center text-base'>
@@ -228,43 +395,40 @@ import { Link } from "react-router-dom";
                 </p>
             </div>
             
-            <Slider />
+            <Slider2 />
             
           </div>
         </section>
 
-          <div className='bg-[#000B58] text-center py-1'>
-              <h3 className='font-[600] text-white text-2xl'>Mission</h3>
+          <div className='bg-[#000B58] text-center py-1' id="mission">
+              <h3 className='font-bold text-white text-2xl'>Mission</h3>
           </div>
         
-            <section className="grid md:grid-cols-2 bg-gradient-to-r from-cyan-200 via-sky-100 to-slate-100">
-              
-                  {/* Left: YouTube video */}
-                  {/* <div className="bg-white/80 rounded-xl shadow-md border border-slate-200 p-2 md:p-3"> */}
-                    <div className="md:w-[500px] h-[300px] m-6 border border-gray-950 shadow-md overflow-hidden">
-                      <iframe
-                        className="w-full h-full object-cover"
-                        src="https://www.youtube.com/embed/h39Xfd5wJLw"
-                        title="Village Mapping: Unlocking Its Potential – A Pilot"
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                      />
-                    </div>
-                  {/* </div> */}
+            <section
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 bg-gradient-to-r from-cyan-200 via-sky-100 to-slate-100 p-4 sm:p-6 md:p-10">
+              {/* Left: YouTube video */}
+              <div
+                className="w-full max-w-xl h-50 sm:h-65 md:h-75 mx-auto border border-gray-950 shadow-md overflow-hidden">
+                <iframe
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/h39Xfd5wJLw"
+                  title="Village Mapping: Unlocking Its Potential – A Pilot"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
 
-                  {/* Right: quote text */}
-                  <div className="text-slate-800 flex items-stretch self-center">
-                    <p className="text-lg md:text-2xl text-blue-950 font-medium italic leading-relaxed">
-                      “Empowering communities through the utilization of crowdsourced
-                      mapping and data analysis for enhanced public health outcomes.”
-                    </p>
-                  </div>
+              {/* Right: quote text */}
+              <div className="flex items-center justify-center text-center md:text-left px-2">
+                <p className="text-base sm:text-lg md:text-xl text-blue-950 font-medium leading-relaxed max-w-xl">
+                  “Empowering communities through the utilization of crowdsourced mapping and data analysis for enhanced public health outcomes.”
+                </p>
+              </div>
             </section>
-        
 
-            <div className='bg-[#000B58] text-center py-1'>
-              <h3 className='font-[600] text-white text-2xl'>What we do</h3>
+            <div className='bg-[#000B58] text-center py-1' id="what-we-do">
+              <h3 className='font-bold text-white text-2xl'>What we do</h3>
             </div>
         <section>
               <div className='grid md:grid-cols-2 gap-8 bg-gradient-to-r from-cyan-200 via-sky-100 to-blue-100 p-5'>
@@ -323,63 +487,83 @@ import { Link } from "react-router-dom";
         </section>
 
           <div className='bg-[#000B58] text-center py-1'>
-              <h3 className='font-[600] text-white text-2xl'>Volunteerism and Support</h3>
+              <h3 className='font-bold text-white text-2xl'>Volunteerism and Support</h3>
           </div>
         <section>
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-9 shadow-2xl bg-gradient-to-r from-cyan-200 via-sky-100 to-blue-100 p-4 sm:p-6 md:p-0">
+              {/* Text */}
+              <div className="mx-auto md:m-9 text-center text-sm sm:text-base text-blue-950 max-w-xl">
+                <p className="mb-4">
+                  As a crowdsourcing initiative, GroupMappers values the power of volunteerism
+                  and engages young individuals who share a passion for exploring the world of
+                  geospatial techniques and public health. This provides an opportunity for
+                  individuals to participate in action-oriented and impactful activities.
+                </p>
+                <p>
+                  Volunteers can choose to participate in segments that align with their
+                  interests, such as working for fund raising, mapping, writing for newsletters
+                  or conducting sessions in GIS/RS club cafes.
+                </p>
+              </div>
 
-          <div className='grid md:grid-cols-2 gap-9 shadow-2xl bg-gradient-to-r from-cyan-200 via-sky-100 to-blue-100'>
-            <div className='m-9 text-center text-md text-blue-950'>
-              <p className=''>
-                As a crowdsourcing initiative, GroupMappers values the power of volunteerism and engages young individuals who share a passion for exploring the world of geospatial techniques and public health. This provides an opportunity for individuals to participate in action-oriented and impactful activities.
-              </p>
-              <p className=''>
-                Volunteers can choose to participate in segments that align with their interests, such as working for fund raising , mapping, writing for newsletters or conducting sessions in GIS/RS club cafes.
-              </p>
+              {/* Image */}
+              <div className="flex justify-center items-center px-4 sm:px-6 md:px-9 py-4">
+                <img
+                  src="/src/assets/images/Res02_IMG_20200221_144520-scaled.webp"
+                  alt="Volunteers Image"
+                  className="rounded-[40px] sm:rounded-[50px] w-full max-w-sm h-45 sm:h-55 md:h-65 object-cover drop-shadow-2xl"
+                />
+              </div>
             </div>
-            <div className='px-9 py-2'>
-              <img src="/src/assets/images/Res02_IMG_20200221_144520-scaled.webp" 
-                alt="Volunteers Image" 
-                className='rounded-2xl w-sm h-[220px] m-5 drop-shadow-xl/100' />
-            </div>
-          </div>
-        </section>
-
-            <div className='bg-[#000B58] text-center py-1'>
-              <h3 className='font-[600] text-white text-2xl'>Founders</h3>
+          </section>
+            <div className='bg-[#000B58] text-center py-1' id="founders">
+              <h3 className='font-bold text-white text-2xl'>Founders</h3>
             </div>
 
-        <section className='grid md:grid-cols-3 gap-5 p-5 bg-sky-200'>
-          <div className='flex flex-col items-center gap-3'>
-            <img src="/src/assets/images/richard.webp" 
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-4 sm:p-6 lg:p-10 bg-sky-200">
+          {/* Card */}
+            <div className="flex flex-col items-center gap-4 text-center">
+              <img
+                src="/src/assets/images/richard.webp"
                 alt="Richard Maude"
-                className='rounded-[25%] w-[200px] h-[200px]' />
-            <div className='text-center w-sm gap-x-4'>
-              <h1 className='font-[700] p-2 text-2xl'>Richard Maude</h1>
-              <h1 className='font-[700] p-5 text-red-800'>Head of Epidemiology</h1>
-              <p>
-                Professor Maude is Head of the Epidemiology Department at Mahidol-Oxford Tropical Medicine Research Unit, Bangkok, Thailand His research combines clinical studies, descriptive epidemiology and mathematical modelling of human diseases.
-              </p>
-            </div>
-            <span className='flex flex-row gap-3'>
+                className="rounded-[25%] w-[150px] h-[150px] sm:w-[180px] sm:h-[180px] lg:w-[200px] lg:h-[200px] object-cover"
+              />
+
+              <div className="max-w-sm px-2">
+                <h1 className="font-bold text-xl sm:text-2xl text-[#121E62]">Richard Maude</h1>
+                <h2 className="font-semibold py-2 text-red-800 text-sm sm:text-base">
+                  Head of Epidemiology
+                </h2>
+                <p className="text-sm sm:text-base leading-relaxed">
+                  Professor Maude is Head of the Epidemiology Department at
+                  Mahidol-Oxford Tropical Medicine Research Unit, Bangkok, Thailand.
+                  His research combines clinical studies, descriptive epidemiology
+                  and mathematical modelling of human diseases.
+                </p>
+              </div>
+
+              <span className="flex gap-4 pt-2">
                 <a href="https://www.tropmedres.ac/team/richard-maude" target="_blank">
-                  <img src="/src/assets/images/pngegg.png" alt="logo" className='rounded-full w-[40px]' />
+                  <img src="/src/assets/images/pngegg.png" className="w-9 h-9" />
                 </a>
                 <a href="https://twitter.com/rjmaude" target="_blank">
-                  <img src="/src/assets/images/twitter.png" alt="twitter" className='rounded-full w-[30px]' />
+                  <img src="/src/assets/images/twitter.png" className="w-7 h-7" />
                 </a>
                 <a href="https://www.linkedin.com/in/richardjmaude/" target="_blank">
-                  <img src="/src/assets/images/linkedin.png" alt="linkedin" className='rounded-full w-[30px]' />
+                  <img src="/src/assets/images/linkedin.png" className="w-7 h-7" />
                 </a>
               </span>
-          </div>
-          <div className='flex flex-col items-center gap-3'>
+            </div>
+
+          <div className='flex flex-col items-center gap-4 text-center'>
             <img src="/src/assets/images/sinha.webp" 
             alt="ipsita sinha"
-            className='rounded-[25%] w-[200px] h-[200px]' />
-            <div className='text-center w-xs'>
-              <h1 className='font-[700] p-2 text-2xl'>Ipsita Sinha</h1>
-              <h1 className='font-[700] p-5 text-red-800'>Research Physician</h1>
-              <p>
+            className='rounded-[25%] w-[150px] h-[150px] sm:w-[180px] sm:h-[180px] lg:w-[200px] lg:h-[200px] object-cover' />
+            <div className='max-w-sm px-2'>
+              <h1 className='font-bold text-xl sm:text-2xl text-[#121E62]'>Ipsita Sinha</h1>
+              <h1 className='font-semibold py-2 text-red-800 text-sm sm:text-base'>Research Physician</h1>
+              <p className="text-sm sm:text-base leading-relaxed">
                 Dr Ipsita Sinha is part of the Epidemiology department at MORU, and a Research Physician in Tropical Medicine at the University of Oxford. She is also an honorary medical registrar at the John Radcliffe Hospital in Oxford.
               </p>
             </div>
@@ -389,20 +573,21 @@ import { Link } from "react-router-dom";
                 </a>
               </span>
           </div>
-          <div className='flex flex-col items-center gap-3'>
+
+          <div className='flex flex-col items-center gap-4 text-center'>
             <img src="/src/assets/images/Sazid-Ibna-Zaman-scaled.webp" 
             alt="Sazid-Ibna-Zaman"
-            className='rounded-[25%] w-[200px] h-[200px]' />
-            <div className='text-center w-xs'>
-              <h1 className='font-[700] p-2 text-2xl'>Sazid Ibna Zaman</h1>
-                <h1 className='font-[700] p-5 text-red-800'>Data Manager & GIS Specialist</h1>
-                <p>
+            className='rounded-[25%] w-[150px] h-[150px] sm:w-[180px] sm:h-[180px] lg:w-[200px] lg:h-[200px] object-cover' />
+            <div className='max-w-sm px-2'>
+              <h1 className='font-bold text-xl sm:text-2xl text-[#121E62]'>Sazid Ibna Zaman</h1>
+                <h1 className='font-semibold py-2 text-red-800 text-sm sm:text-base'>Data Manager & GIS Specialist</h1>
+                <p className="text-sm sm:text-base leading-relaxed">
                   Based in Dhaka, Bangladesh, Sazid Ibna Zaman is a Data Manager & GIS Specialist for the MORU Epidemiology departments at the Mahidol Oxford Tropical Medicine Research Unit (MORU), Bangkok, Thailand
                 </p>
               </div>
-              <span className='flex flex-row gap-3'>
+              <span className='flex gap-4 pt-2'>
                 <a href="https://www.tropmedres.ac/team/sazid-ibna-zaman" target="_blank">
-                  <img src="/src/assets/images/pngegg.png" alt="logo" className='rounded-full w-[40px]' />
+                  <img src="/src/assets/images/pngegg.png" alt="logo" className='rounded-full w-10' />
                 </a>
                 <a href="https://twitter.com/sajidgeo1707" target="_blank">
                   <img src="/src/assets/images/twitter.png" alt="twitter" className='rounded-full w-[30px]' />
@@ -414,20 +599,19 @@ import { Link } from "react-router-dom";
           </div>
         </section>
 
-        <div className='bg-[#000B58] text-center py-1'>
-            <h3 className='font-[600] text-white text-2xl'>Latest News</h3>
+        <div className='bg-[#000B58] text-center py-1' id="news">
+            <h3 className='font-bold text-white text-2xl'>Latest News</h3>
         </div>
-        <section className="grid md:grid-cols-3 gap-9 p-5 bg-gradient-to-r from-cyan-200 via-sky-100 to-blue-100">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-9 p-4 sm:p-6 lg:p-10 bg-gradient-to-r from-cyan-200 via-sky-100 to-blue-100">
           <div>
-           <div className="relative w-full max-w-md overflow-hidden shadow-lg group">
+           <div className="relative w-full max-w-md mx-auto overflow-hidden shadow-lg group">
               {/* Image */}
               <img
                 src="/src/assets/images/363292119_622358269996766_5741166488675444152_n.webp"
                 alt="sdrajfhvgrweuavuerbvburbvbbrvbrbvbvr"
-                className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
               />
-
-              <span className="absolute right-0 top-3 p-1 text-sm font-bold bg-green-300 opacity-90">
+              <span className="absolute right-0 top-2 px-2 py-1 text-xs sm:text-sm font-bold bg-green-300 opacity-90en-300 opacity-90">
                 <FontAwesomeIcon icon={faTag} />
                 July 25, 2023
               </span>
@@ -437,31 +621,31 @@ import { Link } from "react-router-dom";
 
               {/* Center “Open” */}
               <Link
-                to="/2023/07/25/groupmappers-moru-is-featured-in-celebration-of-world-malaria-day-2023-by-who-news/" target="_blank" // Use `Link` for internal routing
+                to="/news/groupmappers-moru-is-featured-in-celebration-of-world-malaria-day-2023-by-who-news/" target="_blank" // Use `Link` for internal routing
                 className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"
               >
                 
               </Link>
            </div>
               {/* Static bottom overlay (Title + Date) */}
-              <Link to="/2023/07/25/groupmappers-moru-is-featured-in-celebration-of-world-malaria-day-2023-by-who-news/"
+              <Link to="/news/groupmappers-moru-is-featured-in-celebration-of-world-malaria-day-2023-by-who-news/"
                 target="_blank">
-                <h3 className="text-center text-md text-green-400 font-bold hover:underline">
+                <h3 className="text-center text-sm sm:text-base font-bold text-green-500 hover:underline px-2">
                     GroupMappers, MORU, is featured in celebration of World Malaria Day 2023 by WHO news.                                    
                 </h3>
               </Link>
           </div>
 
           <div>
-              <div className="relative w-full max-w-md overflow-hidden shadow-lg group">
+              <div className="relative w-full max-w-md mx-auto overflow-hidden shadow-lg group">
                   {/* Image */}
                   <img
                     src="/src/assets/images/363295717_621875540045039_953665437720276652_n.webp"
                     alt="sdrajfhvgrweuavuerbvburbvbbrvbrbvbvr"
-                    className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                   />
 
-                  <span className="absolute right-0 top-3 p-1 text-sm font-bold bg-green-300 opacity-90">
+                  <span className="absolute right-0 top-2 px-2 py-1 text-xs sm:text-sm font-bold bg-green-300 opacity-90en-300 opacity-90">
                     <FontAwesomeIcon icon={faTag} />
                     July 25, 2023
                   </span>
@@ -470,27 +654,27 @@ import { Link } from "react-router-dom";
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-300"></div>
 
                   {/* Center “Open” */}
-                  <Link to="/2023/07/25/the-two-week-long-diagnostic-network-optimization-dno-training-workshop-funded-by-find/" target="_blank" // Use `Link` for internal routing
+                  <Link to="/news/the-two-week-long-diagnostic-network-optimization-dno-training-workshop-funded-by-find/" target="_blank" // Use `Link` for internal routing
                     className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"
                   >
                     
                   </Link>
               </div>
                   {/* Static bottom overlay (Title + Date) */}
-                <Link to="/2023/07/25/the-two-week-long-diagnostic-network-optimization-dno-training-workshop-funded-by-find/" target="_blank">
-                  <h3 className="text-center text-md text-green-400 font-bold hover:underline">
+                <Link to="/news/the-two-week-long-diagnostic-network-optimization-dno-training-workshop-funded-by-find/" target="_blank">
+                  <h3 className="text-center text-sm sm:text-base font-bold text-green-500 hover:underline px-2">
                       The two week long Diagnostic Network Optimization (DNO) training workshop, funded by FIND       
                   </h3>
                 </Link>
           </div>
 
           <div>
-           <div className="relative w-full max-w-md overflow-hidden shadow-lg group">
+           <div className="relative w-full max-w-md mx-auto overflow-hidden shadow-lg group">
               {/* Image */}
               <img
                 src="/src/assets/images/355011755_603194128579847_6181054942140954672_n.webp"
                 alt="sdrajfhvgrweuavuerbvburbvbbrvbrbvbvr"
-                className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
               />
 
               {/* Static bottom overlay (Title + Date) */}
@@ -498,7 +682,7 @@ import { Link } from "react-router-dom";
                               bg-gradient-to-t from-slate-400 via-gray-200 to-transparent 
                               px-4 py-3 flex items-center justify-between">
               </div>
-              <span className="absolute right-0 top-3 p-1 text-sm font-bold bg-green-300 opacity-90">
+              <span className="absolute right-0 top-2 px-2 py-1 text-xs sm:text-sm font-bold bg-green-300 opacity-90en-300 opacity-90">
                 <FontAwesomeIcon icon={faTag} />  
                 July 19, 2023
               </span>
@@ -508,15 +692,15 @@ import { Link } from "react-router-dom";
 
               {/* Center “Open” */}
               <Link
-                to="/2023/06/19/update-on-monsoon-aedes-mosquito-survey/"
+                to="/news/update-on-monsoon-aedes-mosquito-survey/"
                 target="_blank"
                 className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"
               >
                 
               </Link>
            </div>
-              <Link to="/2023/06/19/update-on-monsoon-aedes-mosquito-survey/">
-                <h3 className="text-center text-md text-green-400 font-bold hover:underline">
+              <Link to="/news/update-on-monsoon-aedes-mosquito-survey/">
+                <h3 className="text-center text-sm sm:text-base font-bold text-green-500 hover:underline px-2">
                     Update on Monsoon Aedes Mosquito Survey         
                 </h3>
               </Link>
@@ -528,7 +712,7 @@ import { Link } from "react-router-dom";
               <img
                 src="/src/assets/images/347551904_601425012090092_920833754943124441_n.webp"
                 alt="sdrajfhvgrweuavuerbvburbvbbrvbrbvbvr"
-                className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
               />
 
               {/* Static bottom overlay (Title + Date) */}
@@ -536,7 +720,7 @@ import { Link } from "react-router-dom";
                               bg-gradient-to-t from-slate-400 via-gray-200 to-transparent 
                               text-black px-4 py-3 flex items-center justify-between">
               </div>
-              <span className="absolute right-0 top-3 p-1 text-sm font-bold bg-green-300 opacity-90">
+              <span className="absolute right-0 top-2 px-2 py-1 text-xs sm:text-sm font-bold bg-green-300 opacity-90">
                 <FontAwesomeIcon icon={faTag} />
                 June 15, 2023
               </span>
@@ -546,7 +730,7 @@ import { Link } from "react-router-dom";
 
               {/* Center “Open” */}
               <Link
-                to="/2023/06/15/nmep-brac-and-groupmappers-unite-to-celebrate-the-world-malaria-day-2023/"
+                to="/news/nmep-brac-and-groupmappers-unite-to-celebrate-the-world-malaria-day-2023/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"
@@ -554,8 +738,8 @@ import { Link } from "react-router-dom";
                 
               </Link>
            </div>
-            <Link to="/2023/06/15/nmep-brac-and-groupmappers-unite-to-celebrate-the-world-malaria-day-2023/" target="_blank">
-              <h3 className="text-center text-md font-bold text-green-400 hover:underline">
+            <Link to="/news/nmep-brac-and-groupmappers-unite-to-celebrate-the-world-malaria-day-2023/" target="_blank">
+              <h3 className="text-center text-sm sm:text-base font-bold text-green-500 hover:underline px-2">
                 NMEP, BRAC, and GroupMappers unite to celebrate The World Malaria Day, 2023        
               </h3>
             </Link>
@@ -567,7 +751,7 @@ import { Link } from "react-router-dom";
                   <img
                     src="/src/assets/images/E88DC258-35FA-4175-B8E2-42A08B82ABD0.webp"
                     alt="sdrajfhvgrweuavuerbvburbvbbrvbrbvbvr"
-                    className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                   />
 
                   {/* Static bottom overlay (Title + Date) */}
@@ -575,7 +759,7 @@ import { Link } from "react-router-dom";
                                   bg-gradient-to-t from-slate-400 via-gray-200 to-transparent 
                                   text-black px-4 py-3 flex items-center justify-between">
                   </div>
-                  <span className="absolute right-0 top-3 p-1 text-sm font-bold bg-green-300 opacity-90">
+                  <span className="absolute right-0 top-2 px-2 py-1 text-xs sm:text-sm font-bold bg-green-300 opacity-90">
                     <FontAwesomeIcon icon={faTag} />  
                     February 26, 2023
                   </span>
@@ -585,7 +769,7 @@ import { Link } from "react-router-dom";
 
                   {/* Center “Open” */}
                   <Link
-                    to="/2023/02/10/updates-on-crisis-ready-project-crp-workshop/"
+                    to="/news/updates-on-crisis-ready-project-crp-workshop/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"
@@ -593,10 +777,10 @@ import { Link } from "react-router-dom";
                     
                   </Link>
               </div>
-              <Link to="/2023/02/10/updates-on-crisis-ready-project-crp-workshop/"
+              <Link to="/news/workshop-on-development-of-malaria-funding-request-to-global-fund-gc-7/"
                     target="_blank">
-                  <h3 className="text-center text-md font-bold text-green-400 hover:underline"> 
-                    Updates on Crisis Ready Project (CRP) workshop!                                    
+                  <h3 className="text-center text-sm sm:text-base font-bold text-green-500 hover:underline px-2"> 
+                    Workshop on Development of Malaria funding request to Global Fund (GC-7)                                    
                   </h3>
               </Link>
           </div>
@@ -607,7 +791,7 @@ import { Link } from "react-router-dom";
                 <img
                   src="/src/assets/images/329799865_446331290962677_9061255370092079196_n.jpg"
                   alt="sdrajfhvgrweuavuerbvburbvbbrvbrbvbvr"
-                  className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                 />
 
                 {/* Static bottom overlay (Title + Date) */}
@@ -615,7 +799,7 @@ import { Link } from "react-router-dom";
                                 bg-gradient-to-t from-slate-400 via-gray-200 to-transparent 
                                 text-black px-4 py-3 flex items-center justify-between">
                 </div>
-                <span className="absolute right-0 top-3 p-1 text-sm font-bold bg-green-300 opacity-90">
+                <span className="absolute right-0 top-2 px-2 py-1 text-xs sm:text-sm font-bold bg-green-300 opacity-90">
                   <FontAwesomeIcon icon={faTag} />  
                   February 10, 2023
                 </span>
@@ -625,7 +809,7 @@ import { Link } from "react-router-dom";
 
                 {/* Center “Open” */}
                 <Link
-                  to="/2023/01/11/technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-in-lama-upazila-bandarban/"
+                  to="/news/technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-in-lama-upazila-bandarban/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"
@@ -633,8 +817,8 @@ import { Link } from "react-router-dom";
                   
                 </Link>
             </div>
-            <Link to="/2023/01/11/technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-in-lama-upazila-bandarban/" target="_blank">
-                  <h3 className="text-center text-md font-bold text-green-400 hover:underline">
+            <Link to="/news/technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-in-lama-upazila-bandarban/" target="_blank">
+                  <h3 className="text-center text-sm sm:text-base font-bold text-green-500 hover:underline px-2">
                     Updates on Crisis Ready Project (CRP) workshop!                            
                   </h3>
             </Link>
@@ -646,7 +830,7 @@ import { Link } from "react-router-dom";
                   <img
                     src="/src/assets/images/323640300_873953090592227_1708312130902432154_n (1).webp"
                     alt="sdrajfhvgrweuavuerbvburbvbbrvbrbvbvr"
-                    className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                   />
 
                   {/* Static bottom overlay (Title + Date) */}
@@ -654,7 +838,7 @@ import { Link } from "react-router-dom";
                                   bg-gradient-to-t from-slate-400 via-gray-200 to-transparent 
                                   text-black px-4 py-3 flex items-center justify-between">
                   </div>
-                  <span className="absolute right-0 top-3 p-1 text-sm font-bold bg-green-300 opacity-90">
+                  <span className="absolute right-0 top-2 px-2 py-1 text-xs sm:text-sm font-bold bg-green-300 opacity-90">
                     <FontAwesomeIcon icon={faTag} />  
                     January 11, 2023
                   </span>
@@ -664,7 +848,7 @@ import { Link } from "react-router-dom";
 
                   {/* Center “Open” */}
                   <Link
-                    to="/2023/01/11/technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-in-lama-upazila-bandarban/"
+                    to="/news/technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-in-lama-upazila-bandarban/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"
@@ -672,8 +856,8 @@ import { Link } from "react-router-dom";
                     
                   </Link>
               </div>
-              <Link to="/2023/01/11/technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-in-lama-upazila-bandarban/" target="_blank">
-                    <h3 className="text-center text-md font-bold text-green-400 hover:underline">
+              <Link to="/news/technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-in-lama-upazila-bandarban/" target="_blank">
+                    <h3 className="text-center text-sm sm:text-base font-bold text-green-500 hover:underline px-2">
                         Implementing village level data collection and surveillance towards malaria elimination     
                     </h3>
               </Link>     
@@ -685,7 +869,7 @@ import { Link } from "react-router-dom";
                 <img
                   src="/src/assets/images/320811567_523192509756883_5078948741165636619_n.webp"
                   alt="sdrajfhvgrweuavuerbvburbvbbrvbrbvbvr"
-                  className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                 />
 
                 {/* Static bottom overlay (Title + Date) */}
@@ -693,7 +877,7 @@ import { Link } from "react-router-dom";
                                 bg-gradient-to-t from-slate-400 via-gray-200 to-transparent 
                                 text-black px-4 py-3 flex items-center justify-between">
                 </div>
-                <span className="absolute right-0 top-3 p-1 text-sm font-bold bg-green-300 opacity-90">
+                <span className="absolute right-0 top-2 px-2 py-1 text-xs sm:text-sm font-bold bg-green-300 opacity-90">
                   <FontAwesomeIcon icon={faTag} />  
                   December 15, 2022
                 </span>
@@ -703,7 +887,7 @@ import { Link } from "react-router-dom";
 
                 {/* Center “Open” */}
                 <Link
-                  to="/2022/12/15/a-two-day-workshop-with-find-iccdr-b-and-nmep-on-applying-diagnostic-network-optimisation-analysis-to-inform-the-introduction-of-g6pd-testing-into-bangladesh-for-improved-malaria-treatment-was/"
+                  to="/news/a-two-day-workshop-with-find-iccdr-b-and-nmep-on-applying-diagnostic-network-optimisation-analysis-to-inform-the-introduction-of-g6pd-testing-into-bangladesh-for-improved-malaria-treatment-was/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"
@@ -711,8 +895,8 @@ import { Link } from "react-router-dom";
                   
                 </Link>
             </div>
-            <Link to="/2022/12/15/a-two-day-workshop-with-find-iccdr-b-and-nmep-on-applying-diagnostic-network-optimisation-analysis-to-inform-the-introduction-of-g6pd-testing-into-bangladesh-for-improved-malaria-treatment-was/" target="_blank">
-                  <h3 className="text-center text-md font-bold text-green-400 hover:underline">
+            <Link to="/news/a-two-day-workshop-with-find-iccdr-b-and-nmep-on-applying-diagnostic-network-optimisation-analysis-to-inform-the-introduction-of-g6pd-testing-into-bangladesh-for-improved-malaria-treatment-was/" target="_blank">
+                  <h3 className="text-center text-sm sm:text-base font-bold text-green-500 hover:underline px-2">
                       Assisting in introduction of G6PD testing to improve malaria treatment in Bangladesh.                               
                   </h3>
             </Link>
@@ -724,7 +908,7 @@ import { Link } from "react-router-dom";
                   <img
                     src="/src/assets/images/317859655_3366860196918809_9046594087199264735_n.webp"
                     alt="sdrajfhvgrweuavuerbvburbvbbrvbrbvbvr"
-                    className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                   />
 
                   {/* Static bottom overlay (Title + Date) */}
@@ -732,7 +916,7 @@ import { Link } from "react-router-dom";
                                   bg-gradient-to-t from-slate-400 via-gray-200 to-transparent 
                                   text-black px-4 py-3 flex items-center justify-between">
                   </div>
-                  <span className="absolute right-0 top-3 p-1 text-sm font-bold bg-green-300 opacity-90">
+                  <span className="absolute right-0 top-2 px-2 py-1 text-xs sm:text-sm font-bold bg-green-300 opacity-90">
                     <FontAwesomeIcon icon={faTag} />  
                     December 5, 2022
                   </span>
@@ -742,7 +926,7 @@ import { Link } from "react-router-dom";
 
                   {/* Center “Open” */}
                   <Link
-                    to="/2022/12/05/mass-dog-vaccination-program-mdv-from-30th-november-to-5th-december-2022/"
+                    to="/news/mass-dog-vaccination-program-mdv-from-30th-november-to-5th-december-2022/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"
@@ -750,8 +934,8 @@ import { Link } from "react-router-dom";
                     
                   </Link>
               </div>
-              <Link to="/2022/12/05/mass-dog-vaccination-program-mdv-from-30th-november-to-5th-december-2022/" target="_blank">
-                <h3 className="text-center text-md font-bold text-green-400 hover:underline">
+              <Link to="/news/mass-dog-vaccination-program-mdv-from-30th-november-to-5th-december-2022/" target="_blank">
+                <h3 className="text-center text-sm sm:text-base font-bold text-green-500 hover:underline px-2">
                   Mass Dog Vaccination Program (MDV)                                    
                 </h3>
               </Link>
@@ -763,10 +947,10 @@ import { Link } from "react-router-dom";
               <img
                 src="/src/assets/images/316113518_3357919677812861_7216339683318669044_n.webp"
                 alt="sdrajfhvgrweuavuerbvburbvbbrvbrbvbvr"
-                className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-48 sm:h-56 lg:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
               />
               
-              <span className="absolute right-0 top-3 p-1 text-sm font-bold bg-green-300 opacity-90">
+              <span className="absolute right-0 top-2 px-2 py-1 text-xs sm:text-sm font-bold bg-green-300 opacity-90">
                 <FontAwesomeIcon icon={faTag} />  
                 November 20, 2022
               </span>
@@ -776,22 +960,22 @@ import { Link } from "react-router-dom";
 
               {/* Center “Open” */}
               <Link
-                to="/2022/11/20/our-training-in-lama-upazila-is-continuing-this-week-under-technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-at-lama-bandarban/"
+                to="/news/our-training-in-lama-upazila-is-continuing-this-week-under-technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-at-lama-bandarban/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"
               >
               </Link>
            </div>
-           <Link to="/2022/11/20/our-training-in-lama-upazila-is-continuing-this-week-under-technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-at-lama-bandarban/" target="_blank">
-                <h3 className="text-center text-md font-bold text-green-400 hover:underline">Celebrating GIS Day, 2022 with JnU                                                                        
+           <Link to="/news/our-training-in-lama-upazila-is-continuing-this-week-under-technical-assistance-in-implementing-village-level-data-collection-and-surveillance-towards-malaria-elimination-at-lama-bandarban/" target="_blank">
+                <h3 className="text-center text-sm sm:text-base font-bold text-green-500 hover:underline px-2">Celebrating GIS Day, 2022 with JnU                                                                        
                 </h3>
             </Link>
           </div>
         </section>
 
         <div className='bg-[#000B58] text-center py-1'>
-            <h3 className='font-[600] text-white text-2xl'>Join our effort</h3>
+            <h3 className='font-bold text-white text-2xl'>Join our effort</h3>
         </div>    
         <section className='grid md:grid-cols-2 gap-9 bg-sky-200'>
             <div className='md:w-full mx-5 my-9 text-md text-blue-950 text-center'>
@@ -803,7 +987,7 @@ import { Link } from "react-router-dom";
             <div className='flex flex-col items-center my-5'>
               <img src="/src/assets/images/Caddddpture.webp" 
               alt="development office"  
-              className='md:w-[600px] h-[200px] rounded-3xl shadow-2xl shadow-black my-4'
+              className='md:w-150 h-50 rounded-3xl shadow-2xl shadow-black my-4'
               />
               
                 <p className='text-center text-3xl font-semibold py-4'>Help us make an impact</p>
@@ -815,30 +999,37 @@ import { Link } from "react-router-dom";
         </section>
 
         <div className='bg-[#000B58] text-center py-1'>
-            <h3 className='font-[600] text-white text-2xl'>By the number</h3>
+          <h3 className='font-bold text-white text-2xl'>By the number</h3>
         </div>
         <section className='flex md:flex-row flex-col m-2'>
-          <div className="bg-[url('/src/assets/images/stars-changing-colors.gif')] md:w-[50%] h-[200px] text-center">
-              <i class="fa fa-briefcase fa-2x" aria-hidden="true"></i>
-              <h1 className='text-4xl mt-6 '>20</h1>
-              <h1 className='text-2xl'>Core Experts</h1> 
+          <div className="bg-[url('/src/assets/images/stars-changing-colors.gif')] md:w-[50%] h-50 text-center">
+            <div className="py-6">
+              <i class="fa fa-briefcase fa-2x" aria-hidden="true" style= {{color: '#121E62'}}></i>
+              <h1 className='text-7xl mt-4 font-[alice,sans-serif] font-500 text-[rgb(18,30,98)]'>20</h1>
+              <h1 className='text-2xl font-semibold text-[rgb(18,30,98)]'>Core Experts</h1>
+            </div> 
           </div>
-          <div className="bg-[url('/src/assets/images/stars-changing-colors.gif')] md:w-[50%] h-[200px] flex flex-col place-items-center">
-              <img width="50" height="50" src="https://img.icons8.com/ios-filled/100/businessman.png" alt="businessman" />
-              <h1 className='text-4xl mt-1'>19</h1>
-              <h1 className='text-2xl'>Regular Employees</h1>
+          <div className="bg-[url('/src/assets/images/stars-changing-colors.gif')] md:w-[50%] h-50 text-center">
+            <div className="py-6">
+              <i class="fas fa-user-tie fa-2x" aria-hidden="true" style= {{color: '#121E62'}}></i>
+              <h1 className='text-7xl mt-4 font-[alice,sans-serif] font-500 text-[rgb(18,30,98)]'>19</h1>
+              <h1 className='text-2xl font-semibold text-[rgb(18,30,98)]'>Regular Employees</h1>
+            </div>
           </div>
-          <div className="bg-[url('/src/assets/images/stars-changing-colors.gif')] md:w-[50%] h-[200px] text-center">
-              <i class="fa fa-users fa-2x" aria-hidden="true"></i>
-              <h1 className='text-4xl mt-6'>50+</h1>
-              <h1 className='text-2xl'>Active Volunteers</h1>
+          <div className="bg-[url('/src/assets/images/stars-changing-colors.gif')] md:w-[50%] h-50 text-center">
+            <div className="py-6">
+              <i class="fa fa-users fa-2x" aria-hidden="true" style= {{color: '#121E62'}}></i>
+              <h1 className='text-7xl mt-4 font-[alice,sans-serif] font-500 text-[rgb(18,30,98)]'>50+</h1>
+              <h1 className='text-2xl font-semibold text-[rgb(18,30,98)]'>Active Volunteers</h1>
+            </div>
           </div>
-          <div className="bg-[url('/src/assets/images/stars-changing-colors.gif')] md:w-[50%] h-[200px] text-center">
-              <i class="fa fa-pie-chart fa-2x" aria-hidden="true"></i>
-              <h1 className='text-4xl mt-6'>6</h1>
-              <h1 className='text-2xl'>Ongoing Projects</h1>
+          <div className="bg-[url('/src/assets/images/stars-changing-colors.gif')] md:w-[50%] h-50 text-center">
+            <div className="py-6">
+              <i class="fa fa-pie-chart fa-2x" aria-hidden="true" style= {{color: '#121E62'}}></i>
+              <h1 className='text-7xl mt-4 font-[alice,sans-serif] font-500 text-[rgb(18,30,98)]'>6</h1>
+              <h1 className='text-2xl font-semibold text-[rgb(18,30,98)]'>Ongoing Projects</h1>
+            </div>
           </div>
-          
         </section>
 
         <Footer/>
