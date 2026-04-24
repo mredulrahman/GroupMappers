@@ -2,8 +2,8 @@
 import React,{ useState } from "react"
 import { Menubar } from 'primereact/menubar';
 import { PanelMenu } from 'primereact/panelmenu';
-import 'primereact/resources/themes/tailwind-light/theme.css'; 
-import "primereact/resources/primereact.min.css"; 
+import 'primereact/resources/themes/tailwind-light/theme.css';
+import "primereact/resources/primereact.min.css";
 import { useNavigate } from "react-router-dom";
 import { Menu, Button, Group, Accordion, UnstyledButton, Text, Drawer, Burger, ScrollArea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -217,7 +217,7 @@ import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
   }
 
   const menuStyles = {
-    dropdown: {    
+    dropdown: {
       backgroundColor: '#212372',
       borderRadius: 0,
       padding: 0,
@@ -367,29 +367,29 @@ import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
         label: 'About Us',
         icon: 'pi pi-users',
         items: [
-          { label: 'Who we are', icon: 'pi pi-user', 
+          { label: 'Who we are', icon: 'pi pi-user',
             // command: () => {
             //   document.querySelector('#who-we-are')?.scrollIntoView({ behavior: 'smooth' });
-            // }, 
+            // },
             url: '/#who-we-are' },
-          { label: 'What we do', icon: 'pi pi-briefcase', 
+          { label: 'What we do', icon: 'pi pi-briefcase',
             // command: () => {
             //   document.querySelector('#what-we-do')?.scrollIntoView({ behavior: 'smooth' });
             // },
             url: '/#what-we-do' },
-          { label: 'Mission', icon: 'pi pi-flag', 
+          { label: 'Mission', icon: 'pi pi-flag',
             // command: () => {
             //   document.querySelector('#mission')?.scrollIntoView({ behavior: 'smooth' });
             // },
             url: '/#mission' },
-          { label: 'Founders', icon: 'pi pi-users', 
+          { label: 'Founders', icon: 'pi pi-users',
             // command: () => {
             //   document.querySelector('#founders')?.scrollIntoView({ behavior: 'smooth' });
             // },
             url: '/#founders' },
           { label: 'Team members', icon: 'pi pi-sitemap', url: '/Team_Members/' },
           { label: 'Gallery', icon: 'pi pi-images', url: '/gallery/' },
-          { label: 'Latest news', icon: 'pi pi-clock', 
+          { label: 'Latest news', icon: 'pi pi-clock',
             // command: () => {
             //   document.querySelector('#news')?.scrollIntoView({ behavior: 'smooth' });
             // },
@@ -452,7 +452,7 @@ import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
                   {
                     label: 'Real-time population mapping to assess the impact of travel restrictions and social distancing on COVID-19 spread (2020)',
                     url: '/service/real-time-population-mapping-to-assess-the-impact-of-travel-restrictions-and-social-distancing-on-covid-19-spread-2020/'
-                  } 
+                  }
                 ]
               },
               //  Dengue (4-level)
@@ -579,14 +579,14 @@ import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
         icon: 'pi pi-calendar',
         items: [
           // Volunteering (no submenu)
-          { 
-            label: 'Volunteering', 
-            icon: 'pi pi-users', 
+          {
+            label: 'Volunteering',
+            icon: 'pi pi-users',
             command: () => {
               go("volunteering");
             }
           },
-          
+
           // GroupLetters (level 2)
           {
             label: 'GroupLetters',
@@ -597,7 +597,7 @@ import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
               { label: 'Issue 3', icon: 'pi pi-file-o', command: () => go('issue-3') }
             ]
           },
-          
+
           // Training (3-level structure)
           {
             label: 'Training',
@@ -607,23 +607,23 @@ import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
                 label: 'Capacity Training',  // LEVEL 2
                 icon: 'pi pi-cog',
                 items: [                     // LEVEL 3
-                  { 
-                    label: 'Introductory Training on Geographical Information System (GIS) (2019)', 
+                  {
+                    label: 'Introductory Training on Geographical Information System (GIS) (2019)',
                     icon: 'pi pi-map',
-                    command: () => go('introductory-training-on-geographical-information-system-gis-2019') 
+                    command: () => go('introductory-training-on-geographical-information-system-gis-2019')
                   },
-                  { 
-                    label: 'Introduction to GIS for Communicable Disease Surveillance (2017)', 
+                  {
+                    label: 'Introduction to GIS for Communicable Disease Surveillance (2017)',
                     icon: 'pi pi-map-marker',
                     command: () => go('introduction-to-gis-for-communicable-disease-surveillance-2017')
                   }
                 ]
               }
             ]
-          },  
+          },
           // GIS & RS Club Cafe (no submenu)
-          { 
-            label: 'GIS & RS Club Cafe', 
+          {
+            label: 'GIS & RS Club Cafe',
             icon: 'pi pi-coffee',
             command: () => go('gis-rs-club-cafe')
           }
@@ -679,7 +679,7 @@ import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
               </svg>
             )}
           </button> */}
-            
+
           <MobileMenu items={items} />
           {/* Right / Bottom logo */}
           <div className="w-full sm:w-auto max-w-45 order-3 sm:order-0">
@@ -761,7 +761,7 @@ import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
                 color: white !important;
               }
             `}</style>
-            <PanelMenu 
+            <PanelMenu
               model={items}
               className="panelmenu-mobile-custom w-full"
               pt={{
@@ -769,10 +769,10 @@ import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
                 panel: { className: 'm-0 p-0' },
                 header: { className: 'm-0 p-0' },
                 headerContent: { className: 'p-0 m-0' },
-                transition: { 
-                  enterFromClass: 'max-h-0', 
-                  enterActiveClass: 'overflow-hidden transition-all duration-300 ease-out', 
-                  leaveToClass: 'max-h-0' 
+                transition: {
+                  enterFromClass: 'max-h-0',
+                  enterActiveClass: 'overflow-hidden transition-all duration-300 ease-out',
+                  leaveToClass: 'max-h-0'
                 }
               }}
               onLeafClick={(event) => {

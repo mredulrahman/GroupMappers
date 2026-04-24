@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown";
 
 export default function Activity() {
   const { key } = useParams();
-  const activity = activityData.find(item => item.key === key);
+  const activity = Array.isArray(activityData) ? activityData.find(item => item.key === key) : null;
   if (!activity) {
     return (
       <>
@@ -35,7 +35,7 @@ export default function Activity() {
       <div className="px-8 md:px-16 py-3 bg-linear-to-r from-cyan-100 to-sky-50">
         {/* Content */}
         <div className="max-w-6xl mb-8 md:text-xl text-justify">
-          <ReactMarkdown>{activity.para}</ReactMarkdown>
+          <ReactMarkdown>{activity.para || ""}</ReactMarkdown>
         </div>
         {/* {images.length === 1 && (
           <div className="flex justify-center mt-6">
@@ -48,20 +48,20 @@ export default function Activity() {
         )} */}
       {images.length === 1 ? (
           <div className="min-h-[60vh] flex items-center justify-center">
-            <img src={images[0]} className="max-w-full md:max-w-200 shadow-md" />
+            <img src={images[0]} alt={title} className="max-w-full md:max-w-200 shadow-md" />
           </div>
-        ) : (
+        ) : images.length > 1 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {images.map((img, index) => (
               <div
                 key={index}
                 className="h-72 flex items-center justify-center"
               >
-                <img src={img} className="max-h-full max-w-full object-contain" />
+                <img src={img} alt={`${title} ${index + 1}`} className="max-h-full max-w-full object-contain" />
               </div>
             ))}
           </div>
-        )}
+        ) : null}
       </div>
       
       <Footer />

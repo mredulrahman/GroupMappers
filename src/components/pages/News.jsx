@@ -7,7 +7,8 @@ import ReactMarkdown from "react-markdown";
 
 export default function News() {
   const { slug } = useParams();
-  const news = newsData.find((item) => item.slug === slug);
+  const news = Array.isArray(newsData) ? newsData.find((item) => item.slug === slug) : null;
+
   if (!news) {
     return (
       <>
@@ -20,26 +21,28 @@ export default function News() {
     );
   }
 
+  const images = Array.isArray(news.images) ? news.images : [];
+
   return (
     <>
       <Header />
       <div className="px-8 md:px-16 py-8 bg-linear-to-r from-cyan-100 to-sky-50">
         {/* Content */}
         <div className="max-w-none text-justify mb-8 md:text-lg">
-          <ReactMarkdown>{news.para}</ReactMarkdown>
+          <ReactMarkdown>{news.para || ""}</ReactMarkdown>
         </div>
-       {news.images.length === 1 ? (
+       {images.length === 1 ? (
           /* SINGLE IMAGE – CENTERED */
           <div className="flex justify-center">
             <img
-              src={news.images[0]}
+              src={images[0]}
               alt=""
               className="max-w-full md:max-w-200 shadow-md"
             />
           </div>
-        ) : (
+        ) : images.length > 1 ? (
           <div className="columns-1 sm:columns-2 md:columns-3 gap-4">
-            {news.images.map((img, index) => (
+            {images.map((img, index) => (
               <img
                 key={index}
                 src={img}
@@ -48,7 +51,7 @@ export default function News() {
               />
             ))}
           </div>
-        )}
+        ) : null}
       </div>
       <Footer />
     </>
